@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Noter</string>
+    <string name="test">test</string>
+    <string name="save">Save</string>
+    <string name="textbox">TextBox</string>
 </resources>
