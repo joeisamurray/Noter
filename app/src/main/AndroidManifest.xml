@@ -37,6 +37,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Change scheme to "content", scheme file does not work post Android 7
+            Open with intent
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:mimeType="text/plain"/>
+                <data android:host="*" />
+            </intent-filter>
+
+            <!-- Ssend to -->
             <intent-filter
                 android:label="Noter">
                 <action android:name="android.intent.action.SEND" />
