@@ -43,12 +43,13 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="content" />
                 <data android:mimeType="text/plain"/>
                 <data android:host="*" />
             </intent-filter>
 
-            <!-- Ssend to -->
+            <!-- Send to -->
             <intent-filter
                 android:label="Noter">
                 <action android:name="android.intent.action.SEND" />

@@ -5,8 +5,9 @@ a minimalist text editor.
 The code is intended to be reuse in my next bigger project.
 
 current:
-save file
-open with, read uri buffered
+save file,  shared ->  save to, open directly use uri to save the file.
+read, char instead to maintain carriage return
+add widget code
  */
 
 package com.psymblyb.noter;
@@ -23,12 +24,8 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-//import java.io.File;
-
-// todo: add to open with
-
 public class MainActivity extends AppCompatActivity {
-    private static String SharedText;
+    private static String SharedText = "";
     private static String action;
     private static String type;
 
@@ -36,50 +33,48 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.i("Noter version", "open with 1.0");
+        Log.i("Noter version", "Load and Save");
+        Toast.makeText(this, "V: Load and Save", Toast.LENGTH_LONG).show();
 
         //find xml components
         EditText MEdit = findViewById(R.id.MEdit);
 
         // initialise intent
         Intent intent = getIntent();
-        //Intent intent = new Intent(Intent.ACTION_SEND); // creates open dialog
-        intent.setType("text/plain");
         action = intent.getAction();
         type = intent.getType();
 
+        // if opened directly
         if(Intent.ACTION_VIEW.equals(action)) {
             try {
-                Uri uri= getIntent().getData();
+                Uri uri = intent.getData();
                 BufferedReader br = new BufferedReader(new
                 InputStreamReader(getContentResolver().openInputStream(uri), "UTF-8"));
-                SharedText = br.readLine();
+                String Line;
+                while( (Line = br.readLine()) != null) SharedText = SharedText + Line;
             } catch (Exception e) {
                 Log.d("Noter open view", e.getLocalizedMessage()); }
         }
 
+        // if opened with shared file
         if( intent.hasCategory("android.intent.category.DEFAULT") ){
-            intent = getIntent();
+            Log.d("Noter", "If Shared file");
             Toast.makeText(this, "Opened shared file", Toast.LENGTH_LONG).show();
 
-            if(intent!=null) {
-                Log.d("Noter Shared Intent", intent.toString());
-                if(intent.getClipData() != null)
-                {
-                    SharedText = intent.getClipData().getItemAt(0).coerceToText(this).toString();
-                    Log.d("Noter SharedText", SharedText);
-                }
+            Log.d("Noter Shared Intent", intent.toString());
+            if(intent.getClipData() != null)
+            {
+                SharedText = intent.getClipData().getItemAt(0).coerceToText(this).toString();
+                Log.d("Noter SharedText", "Shared Text");
+            }
+            // if shared from text from share highlighted text ++
+            if (intent.getStringExtra(Intent.EXTRA_TEXT) != null) {
+                SharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+                Log.d("Noter", "Highlighted text");
             }
         }
 
-        // if shared from text from share highlighted text
-        if (Intent.ACTION_SEND.equals(action) && type != null) {
-            try {
-                SharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-            } catch (Exception e) {
-                Log.d("Noter", e.getLocalizedMessage()); } }
-
-        Toast.makeText(this, "Open", Toast.LENGTH_LONG).show();
+        Log.d("Noter Final null", String.valueOf(SharedText==null));
         if (SharedText != null) MEdit.setText(SharedText); // set to textbox
     }
 
