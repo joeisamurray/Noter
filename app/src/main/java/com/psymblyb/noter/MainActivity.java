@@ -10,7 +10,6 @@ read, char instead to maintain carriage return
 add widget code
 
 issues:
-uri has rando text in front of it /document/raw: string/byte array change
 manual permission grant, intent or requestpermiss
 get intent object for testing, objectinputstream
 share load or append choice
@@ -49,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.i("Noter version", "Load and Save");
+        Log.i("Noter version", "Save over");
         Toast.makeText(this, "V: Load and Save", Toast.LENGTH_LONG).show();
 
         //find xml components
@@ -75,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.d("Noter open view", e.getLocalizedMessage()); }
         }
+
+        // add dialog to choose if open file or append
 
         // if opened with shared file
         if( intent.hasCategory("android.intent.category.DEFAULT") ){
@@ -119,18 +120,19 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "button clicked", Toast.LENGTH_LONG).show();
         if(uri != null) {
             EditText MEdit = findViewById(R.id.MEdit);
-            byte[] byteArrray = MEdit.getText().toString().getBytes();
-            Log.d("Noter byte Array", byteArrray.toString());
+            byte[] byteArrray = MEdit.getText().toString().getBytes();;
+            String p = uri.getLastPathSegment().substring(4); // remove raw: prefix to get corect save path
+            Log.d("Noter path substring", p);
 
-            String p = uri.getPath(); // /document/raw:/storage/emulated/0/Download/t.txt
-            String HC = "/storage/emulated/0/Download/HC.txt"; //test hardcode
+            // add overwrite dialog
 
             try {
-            //FileOutputStream fout = new FileOutputStream(p);
-            //requestPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, 1);
-            FileOutputStream fout = new FileOutputStream(HC); //permission denied
+            //requestPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, 1); // start permission request Activity, not working did it manually
+            FileOutputStream fout = new FileOutputStream(p);
             fout.write(byteArrray);
-            fout.close(); } catch(Exception e) {Log.d("Noter", e.getLocalizedMessage());}
+            fout.close(); } catch(Exception e) {Log.d("Noter error", e.getLocalizedMessage());}
+            finally { Toast.makeText(this, "Saved File", Toast.LENGTH_LONG).show(); }
+
         }
     }
 }
