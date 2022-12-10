@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         if (SharedText != null)
         {
             MEdit.setText(SharedText); // set to textbox
-            SharedText = null;
+            SharedText = "";
         }
     }
 
