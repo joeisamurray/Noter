@@ -5,37 +5,29 @@ a minimalist text editor.
 The code is intended to be reuse in my next bigger project.
 
 current:
-save file,  shared ->  save to, open directly use uri to save the file.
-read, char instead to maintain carriage return
-add widget code
-
-issues:
-manual permission grant, intent or requestpermiss
-get intent object for testing, objectinputstream
-share load or append choice
+share load or append choice Dialog
+save file,  shared ->  save to Dialog
+permission grant Dialog
  */
 
 package com.psymblyb.noter;
 
-import static android.os.Environment.getExternalStorageDirectory;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
-import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -43,13 +35,14 @@ public class MainActivity extends AppCompatActivity {
     private static String action;
     private static String type;
     private static Uri uri;
+    private static String p;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.i("Noter version", "Save over");
-        Toast.makeText(this, "V: Load and Save", Toast.LENGTH_LONG).show();
+        Log.i("Noter version", "Actions");
+        Toast.makeText(this, "V: Actions", Toast.LENGTH_LONG).show();
 
         //find xml components
         EditText MEdit = findViewById(R.id.MEdit);
@@ -64,18 +57,14 @@ public class MainActivity extends AppCompatActivity {
             try {
                 uri = intent.getData();
                 BufferedReader br = new BufferedReader(new
-                InputStreamReader(getContentResolver().openInputStream(uri), "UTF-8"));
+                InputStreamReader(getContentResolver().openInputStream(uri), StandardCharsets.UTF_8));
                 int I;
                 while( (I = br.read() ) != -1) {
                     SharedText = SharedText + (char)I;
                 }
-//                String Line;
-//                while( (Line = br.readLine()) != null) SharedText = SharedText + Line;
             } catch (Exception e) {
                 Log.d("Noter open view", e.getLocalizedMessage()); }
         }
-
-        // add dialog to choose if open file or append
 
         // if opened with shared file
         if( intent.hasCategory("android.intent.category.DEFAULT") ){
@@ -103,36 +92,48 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //mostly just to get rid of the warnings
-    private static void print() {
-        Log.i("Noter Shared text", SharedText);
-        Log.i("Noter action", action);
-        Log.i("Noter type", type);
-    }
-
     //needs to be static, belongs to class not an object
-    public static boolean validateType() {
-        return type==null;
-    }
+    public static boolean validateType() { return type==null; }
 
     public void FMBSave(View view) {
-        Log.d("Noter", "button clicked");
-        Toast.makeText(this, "button clicked", Toast.LENGTH_LONG).show();
         if(uri != null) {
-            EditText MEdit = findViewById(R.id.MEdit);
-            byte[] byteArrray = MEdit.getText().toString().getBytes();;
-            String p = uri.getLastPathSegment().substring(4); // remove raw: prefix to get corect save path
+            p = uri.getLastPathSegment().substring(4); // remove raw: prefix to get corect save path
             Log.d("Noter path substring", p);
-
+        }
+        else {
             // add overwrite dialog
+            Log.d("Noter error", "reach" );
+        }
 
-            try {
+        try {
+            EditText MEdit = findViewById(R.id.MEdit);
+            byte[] byteArrray = MEdit.getText().toString().getBytes();
+
             //requestPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, 1); // start permission request Activity, not working did it manually
             FileOutputStream fout = new FileOutputStream(p);
             fout.write(byteArrray);
             fout.close(); } catch(Exception e) {Log.d("Noter error", e.getLocalizedMessage());}
-            finally { Toast.makeText(this, "Saved File", Toast.LENGTH_LONG).show(); }
+        finally { Toast.makeText(this, "Saved File", Toast.LENGTH_LONG).show(); }
+    }
 
+    public void FMBUndo(View view) {
+        EditText m = findViewById(R.id.MEdit);
+        m.onTextContextMenuItem(android.R.id.undo);
+
+    }
+    public void FMBRedo(View view) {
+        EditText m = findViewById(R.id.MEdit);
+        m.onTextContextMenuItem(android.R.id.redo);
+    }
+
+    public void FMBPaste(View view) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        String pasteData = "";
+        if(clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+            ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+            if(item != null) pasteData = item.getText().toString();
         }
+        EditText e = findViewById(R.id.MEdit);
+        e.setText(e.getText() + pasteData);
     }
 }

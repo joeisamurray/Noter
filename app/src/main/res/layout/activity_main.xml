@@ -1,40 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/MBUndo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="FMBUndo"
+            android:drawableLeft="@drawable/ic_undo_24dp" />
+
+        <Button
+            android:id="@+id/MBRedo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="FMBRedo"
+            android:drawableLeft="@drawable/ic_redo_24dp" />
+
+        <Button
+            android:id="@+id/MBPaste"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="FMBPaste"
+            android:drawableLeft="@drawable/ic_paste_24dp" />
+
+        <Button
+            android:id="@+id/MBSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="FMBSave"
+            android:drawableLeft="@mipmap/save" />
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/MEdit"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/MBSave"
         android:autofillHints="TextBox"
+        android:gravity="top"
         android:hint="@string/textbox"
         android:inputType="textMultiLine"
-        android:gravity="top"
-        android:textSize="14pt"
-        />
+        android:textSize="14pt" />
 
-<!--    <LinearLayout-->
-<!--        android:id="@+id/linearLayout"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginBottom="52dp"-->
-<!--        android:orientation="horizontal"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/MEdit"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent">-->
-
-    <Button
-        android:id="@+id/MBSave"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="FMBSave"
-        android:text="@string/save" />
-<!--    </LinearLayout>-->
-
-</RelativeLayout>
+</LinearLayout>

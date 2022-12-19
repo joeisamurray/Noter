@@ -3,8 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidStudioProjects/Noter/app/src/main/res/drawable/ic_paste_24dp.xml" value="0.104" />
+        <entry key="..\:/AndroidStudioProjects/Noter/app/src/main/res/drawable/ic_redo_24dp.xml" value="0.1" />
+        <entry key="..\:/AndroidStudioProjects/Noter/app/src/main/res/drawable/ic_undo_24dp.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/Noter/app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/Noter/app/src/main/res/xml/filepaths.xml" value="0.2866847826086957" />
+        <entry key="..\:/AndroidStudioProjects/Noter/app/src/main/res/xml/method.xml" value="0.1" />
       </map>
     </option>
   </component>

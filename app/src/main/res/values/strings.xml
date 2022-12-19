@@ -3,4 +3,8 @@
     <string name="test">test</string>
     <string name="save">Save</string>
     <string name="textbox">TextBox</string>
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
+    <string name="paste">paste</string>
+    <string name="noter_ime">noter_ime</string>
 </resources>
