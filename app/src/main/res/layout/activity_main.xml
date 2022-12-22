@@ -49,6 +49,6 @@
         android:gravity="top"
         android:hint="@string/textbox"
         android:inputType="textMultiLine"
-        android:textSize="14pt" />
+        android:textSize="10pt" />
 
 </LinearLayout>
