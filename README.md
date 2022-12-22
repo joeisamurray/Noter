@@ -1,10 +1,11 @@
 ## Noter
 
-#### a minimialist text editor for android
-##### a learning exercise,
+#### a minimial text editor for android
 
 Has basic functionality
-if opening a text file directly it will load the contents and the save button will overwrite the file. (without asking)
+if opening a text file directly it will load the contents and the save button will overwrite the file. (without asking).
+
+Undo, Redo and Paste.
 
 can share a document to it from the file browser and it will open display the text
 can share some highlighted to text to it and it will open and display the text
