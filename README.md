@@ -9,7 +9,7 @@ Undo, Redo, Paste.
 
 no save to dialog for new files yet.
 
-release 1.2 (1.0 debug.apk)
+#### release 1.2 (1.0 debug.apk)
 signed apk needs google play, back to debug apk release. not sure if you can install this??
 added ask for storage permission dialog.
 share to had redundant code.
