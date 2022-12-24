@@ -20,26 +20,31 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
+import android.content.ContentProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
     private static String SharedText = "";
     private static String action;
     private static String type;
-    private static Uri uri;
+    private static Uri uri = null;
     private static String p;
     private static String permission = WRITE_EXTERNAL_STORAGE;
 
@@ -47,8 +52,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.i("Noter version", "Permission");
-        Toast.makeText(this, "V: Permission", Toast.LENGTH_LONG).show();
+        Log.i("Noter version", "V: 1.3 Save Content");
+        Toast.makeText(this, "V: 1.3 Save Content", Toast.LENGTH_LONG).show();
+        pathdetails();
 
         //find xml components
         EditText MEdit = findViewById(R.id.MEdit);
@@ -64,11 +70,9 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                 );
-//        // 4 permission already granted to your app?
+//        // 4 permission already granted to your app? dont seem to need it it doesnt keep asking
 //        //if (ContextCompat.checkSelfPermission(this, ACCESS_MEDIA_LOCATION) == PERMISSION_DENIED)
             requestPermissionLauncher.launch(permission);
-
-
 
         // initialise intent
         Intent intent = getIntent();
@@ -101,52 +105,76 @@ public class MainActivity extends AppCompatActivity {
 //                Log.d("Noter extra", SharedText);
 //            }
 
-            //AlertDialog(this);
-
             // actually this handles both
             Log.d("Noter Shared Intent", intent.toString());
             if (intent.getClipData() != null) {
                 SharedText = SharedText + intent.getClipData().getItemAt(0).coerceToText(this).toString();
                 Log.d("Noter clip", SharedText);
             }
-
         }
 
-        //Log.d("Noter Final null", String.valueOf(SharedText == null));
         if (SharedText != null) {
             MEdit.setText(SharedText); // set to textbox
             SharedText = "";
         }
     }
 
-    public void FMBSave(View view) {
+    // new file open a choose file dialog
+    public void chooser() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.setType("text/plain");
+        //startActivity(intent); //choose a new file
+        startActivityForResult(intent, 1);
 
-        if (uri != null) {
-            if ( Build.FINGERPRINT.contains("generic") ) p = uri.getLastPathSegment().substring(4); // remove raw: on my files emulator
-            else {
-                p = uri.getPath().substring(5); // remove root prefix filemanager+
-                //my files on samsung external/file/69367 wtf
-            }
+        // deprecated, i think im supposed to use a contract
+//        ActivityResultLauncher<Intent> mStartForResult = registerForActivityResult(new StartActivityForResult(),
+//                new ActivityResultCallback<ActivityResult>() {
+//                    @Override
+//                    public void onActivityResult(ActivityResult result) {
+//                        if (result.getResultCode() == Activity.RESULT_OK) {
+//                            Intent intent = result.getData();
+//                            // Handle the Intent
+//                        }
+//                    }
+//                });
+    }
 
-            Log.d("Noter path substring", p);
-        } else {
-            // add overwrite dialog
-            Log.d("Noter error", "reach");
-        }
+    // handle result. start activity didnt stop execution and resulted in null pointer when i tried to get intent
+    @Override
+    protected void onActivityResult (int requestCode,
+                                     int resultCode,
+                                     Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        uri = data.getData();
+        //extractPath(); no longer need this :)
+        if (uri != null) Log.d("Noter chooser uri: ", uri.toString());
+        save();
+    }
 
+    // save to file
+    // a content provider sits between the file and the app
+    public void save() {
         try {
             EditText MEdit = findViewById(R.id.MEdit);
             byte[] byteArrray = MEdit.getText().toString().getBytes();
 
-            //requestPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, 1); // start permission request Activity, not working did it manually
-            FileOutputStream fout = new FileOutputStream(p);
+            //FileOutputStream fout = new FileOutputStream(p);
+            OutputStream fout = getContentResolver().openOutputStream(uri);
             fout.write(byteArrray);
             fout.close();
         } catch (Exception e) {
             Log.d("Noter error", e.getLocalizedMessage());
         } finally {
-            Toast.makeText(this, "Saved File", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "saved " + uri.toString(), Toast.LENGTH_LONG).show();
         }
+    }
+
+    // save buttoned clicked
+    public void FMBSave(View view) {
+        // if new document ask for file to save to and on result do the save
+        if (uri == null) chooser(); // save to
+        // if opened directly just save
+        if (uri != null) save(); // if all good save it
     }
 
     public void FMBUndo(View view) {
@@ -171,4 +199,38 @@ public class MainActivity extends AppCompatActivity {
         e.setText(e.getText() + pasteData);
     }
 
+    // print out some details about paths.
+    public void pathdetails()
+    {
+        Log.d("Noter root dir", Environment.getRootDirectory().toString());
+        Log.d("Noter root dir", Environment.getExternalStorageDirectory().toString());
+        Log.d("Noter root dir", getExternalFilesDir(null).toString());
+        if(uri != null) {
+            uri.getPath();
+            // uri spec https://www.ietf.org/rfc/rfc2396.txt
+            // scheme: //authority /path ?query #fragment
+            List<String> segments;
+            segments = uri.getPathSegments();
+            Log.d("Noter segs", segments.toString());
+            String two = segments.get(1);
+            Log.d("Noter segs", two); //gives path instead of path segments ! :(
+            extractPath();
+        }
+    }
+
+    // changed to content resolver.
+    public void extractPath() {
+        if ( Build.FINGERPRINT.contains("generic") ) p = uri.getLastPathSegment().substring(4); // remove raw: on my files emulator
+        else {
+            p = uri.getPath().substring(5); // remove root prefix filemanager+
+            //my files on samsung external/file/69367 wtf
+        }
+        Log.d("Noter Extracted Path", p);
+    }
+
+    // test unit MainActivityTest.java
+    //needs to be static, belongs to class not an object
+    public static boolean validateType() {
+        return type==null;
+    }
 }
